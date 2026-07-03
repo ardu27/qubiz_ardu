@@ -1,0 +1,32 @@
+# User Settings
+appsettings.Development.json
+
+# Ignore all markdown files temporarily
+*.md
+**/*.md
+
+# Node.js
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# .NET / Visual Studio / Rider / VS Code
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+.vs/
+.idea/
+.vscode/
+*.sln.docstates
+
+# OS Files
+.DS_Store
+Thumbs.db

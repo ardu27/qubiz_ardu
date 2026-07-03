@@ -1,0 +1,6 @@
+@Meridian.Services.Employees_HostAddress = http://localhost:5205
+
+GET {{Meridian.Services.Employees_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

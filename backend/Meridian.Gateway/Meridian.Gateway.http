@@ -1,0 +1,6 @@
+@Meridian.Gateway_HostAddress = http://localhost:5139
+
+GET {{Meridian.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
