@@ -56,7 +56,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // Enable CORS
 app.UseCors("CorsPolicy");

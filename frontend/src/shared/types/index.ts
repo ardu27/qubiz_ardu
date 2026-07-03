@@ -9,10 +9,12 @@ export interface Employee {
   email: string;
   departmentId: number;
   department?: Department;
+  departmentName?: string; // populated from flat DTO response
   startDate: string;
   officeDays: string; // e.g. "Mon,Wed,Thu"
   buddyId?: number | null;
   buddy?: Employee | null;
+  buddyName?: string | null; // populated from flat DTO response
 }
 
 export type TaskCategory = 'FirstDay' | 'FirstWeek' | 'FirstMonth';
