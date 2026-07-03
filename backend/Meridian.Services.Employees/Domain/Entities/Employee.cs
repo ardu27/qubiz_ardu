@@ -14,6 +14,8 @@ public class Employee
     public DateTime StartDate { get; set; }
     public string OfficeDays { get; set; } = string.Empty; // ex "Mon,Wed,Thu"
     
+    public string PasswordHash { get; set; } = string.Empty;
+    
     public int? BuddyId { get; set; }
     public Employee? Buddy { get; set; }
 }
