@@ -37,29 +37,29 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <Card variant="glass" className="w-full max-w-md p-8 border border-slate-800/80 bg-slate-900/40">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 bg-[#FCFAF6]">
+      <Card variant="glass" className="w-full max-w-md p-10 border border-[#E7E5E4] bg-[#F6F3EB] rounded-none">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/20 mb-4">
-            <span className="font-black text-2xl text-white">M</span>
+          <div className="w-10 h-10 bg-[#1E3F20] flex items-center justify-center mx-auto mb-4 rounded-none">
+            <span className="font-serif font-black text-xl text-white">M</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-[#1C1917] tracking-tight">
             Meridian Onboarding
           </h1>
-          <p className="text-slate-400 mt-2 text-sm">
+          <p className="text-[#57534E] mt-2 text-xs font-medium">
             Autentifica-te pentru a incepe calatoria ta de integrare
           </p>
         </div>
 
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm p-4 rounded-xl mb-6">
+          <div className="bg-[#FCE4D6] border border-[#F8CBAD] text-[#C65911] text-xs p-4 mb-6 rounded-none">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#57534E] mb-2">
               Adresa de Email
             </label>
             <input
@@ -67,13 +67,13 @@ export const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+              className="w-full bg-white border border-[#E7E5E4] rounded-none px-4 py-3 text-sm text-[#1C1917] placeholder-stone-400 focus:outline-none focus:border-[#1E3F20] focus:ring-1 focus:ring-[#1E3F20]/20 transition-all duration-200"
               placeholder="ex: prenume.nume@gmail.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#57534E] mb-2">
               Parola
             </label>
             <input
@@ -81,7 +81,7 @@ export const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+              className="w-full bg-white border border-[#E7E5E4] rounded-none px-4 py-3 text-sm text-[#1C1917] placeholder-stone-400 focus:outline-none focus:border-[#1E3F20] focus:ring-1 focus:ring-[#1E3F20]/20 transition-all duration-200"
               placeholder="••••••••"
             />
           </div>
@@ -89,15 +89,15 @@ export const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-sky-500 text-white font-semibold py-3 rounded-xl hover:from-indigo-550 hover:to-sky-450 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 disabled:opacity-50 transition-all duration-300 shadow-md shadow-indigo-500/10 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full bg-[#1E3F20] hover:bg-[#2C572F] text-white font-semibold py-3 rounded-none focus:outline-none focus:ring-2 focus:ring-[#1E3F20]/20 disabled:opacity-50 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             {loading ? <Spinner size="sm" /> : "Conectare"}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-800/40 text-center">
-          <p className="text-xs text-slate-500">
-            Conturi de test: <code className="text-indigo-400">alex.vlad@gmail.com</code> / <code className="text-indigo-400">1234</code>
+        <div className="mt-8 pt-6 border-t border-[#E7E5E4] text-center">
+          <p className="text-[10px] text-[#57534E]">
+            Conturi de test: <code className="text-[#1E3F20] font-bold">alex.vlad@gmail.com</code> / <code className="text-[#1E3F20] font-bold">1234</code>
           </p>
         </div>
       </Card>

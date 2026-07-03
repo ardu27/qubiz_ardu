@@ -7,11 +7,11 @@ interface CardProps {
 }
 
 export const Card = ({ children, className = "", variant = "glass" }: CardProps) => {
-  const baseStyle = "rounded-2xl p-6 transition-all duration-300";
+  const baseStyle = "p-8 transition-all duration-200 border rounded-none";
   const variants = {
-    glass: "bg-slate-900/50 backdrop-blur-xl border border-slate-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.3)]",
-    elevated: "bg-slate-900 border border-slate-800/50 shadow-md hover:shadow-lg hover:border-slate-700/50",
-    flat: "bg-slate-950 border border-slate-900",
+    glass: "bg-[#F6F3EB] border-[#E7E5E4] shadow-xs",
+    elevated: "bg-white border-[#E7E5E4] shadow-sm hover:shadow-md",
+    flat: "bg-[#FCFAF6] border-[#E7E5E4]",
   };
 
   return (

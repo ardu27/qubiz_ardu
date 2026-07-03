@@ -16,9 +16,9 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FCFAF6] text-[#1C1917] flex flex-col md:flex-row font-sans">
       <Navbar />
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8">
+      <main className="flex-1 p-8 md:p-12 lg:p-16 max-w-6xl w-full mx-auto overflow-y-auto">
         {children}
       </main>
     </div>
@@ -33,7 +33,7 @@ const PublicLayout = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center font-sans">
+    <div className="min-h-screen bg-[#FCFAF6] text-[#1C1917] flex flex-col justify-center font-sans">
       {children}
     </div>
   );

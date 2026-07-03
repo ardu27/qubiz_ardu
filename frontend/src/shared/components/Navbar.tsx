@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CheckSquare, Users, BookOpen, LogOut } from "lucide-react";
 import { useCurrentUser } from "../../app/CurrentUserContext";
 
 export const Navbar = () => {
@@ -11,66 +10,53 @@ export const Navbar = () => {
     navigate("/login");
   };
 
-  const activeStyle = "flex items-center gap-2 px-4 py-2 rounded-xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/25 transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]";
-  const inactiveStyle = "flex items-center gap-2 px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent transition-all duration-300";
+  const activeStyle = "py-1.5 text-xs font-bold uppercase tracking-widest text-[#1C1917] border-l-2 border-[#1E3F20] pl-4 transition-all duration-200 block";
+  const inactiveStyle = "py-1.5 text-xs font-bold uppercase tracking-widest text-[#57534E] hover:text-[#1C1917] border-l-2 border-transparent pl-4 transition-all duration-200 block";
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-900/80 px-6 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center shadow-md shadow-indigo-500/20">
-          <span className="font-black text-xl text-white tracking-wider">M</span>
+    <nav className="w-full md:w-64 md:min-h-screen md:sticky md:top-0 bg-[#FCFAF6] border-b md:border-b-0 md:border-r border-[#E7E5E4] p-8 flex flex-col justify-between z-40">
+      <div className="space-y-12">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-[#1E3F20] flex items-center justify-center rounded-none">
+            <span className="font-serif font-black text-lg text-white">M</span>
+          </div>
+          <span className="font-serif font-bold text-lg tracking-tight text-[#1C1917]">
+            Meridian
+          </span>
         </div>
-        <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-          Meridian Onboarding
-        </span>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <NavLink
-          to="/"
-          className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}
-        >
-          <LayoutDashboard size={18} />
-          <span className="text-sm font-semibold">Dashboard</span>
-        </NavLink>
+        <div className="flex flex-col gap-5">
+          <NavLink to="/" className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}>
+            Dashboard
+          </NavLink>
 
-        <NavLink
-          to="/checklist"
-          className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}
-        >
-          <CheckSquare size={18} />
-          <span className="text-sm font-semibold">Checklist</span>
-        </NavLink>
+          <NavLink to="/checklist" className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}>
+            Checklist
+          </NavLink>
 
-        <NavLink
-          to="/team"
-          className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}
-        >
-          <Users size={18} />
-          <span className="text-sm font-semibold">Echipa</span>
-        </NavLink>
+          <NavLink to="/team" className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}>
+            Echipa
+          </NavLink>
 
-        <NavLink
-          to="/resources"
-          className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}
-        >
-          <BookOpen size={18} />
-          <span className="text-sm font-semibold">Resurse</span>
-        </NavLink>
+          <NavLink to="/resources" className={({ isActive }) => (isActive ? activeStyle : inactiveStyle)}>
+            Resurse
+          </NavLink>
+        </div>
       </div>
 
       {currentUser && (
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-200">{currentUser.fullName}</p>
-            <p className="text-xs text-slate-500">{currentUser.departmentName || currentUser.department?.name || "Nou Angajat"}</p>
+        <div className="pt-8 border-t border-[#E7E5E4] mt-8 flex flex-col gap-4">
+          <div>
+            <p className="text-xs font-bold text-[#1C1917] tracking-tight">{currentUser.fullName}</p>
+            <p className="text-[10px] text-[#57534E] uppercase font-bold tracking-wider mt-0.5">
+              {currentUser.departmentName || currentUser.department?.name || "Nou Angajat"}
+            </p>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all duration-300 cursor-pointer"
-            title="Deconectare"
+            className="text-xs font-bold uppercase tracking-widest text-[#57534E] hover:text-[#C65911] transition-all duration-200 cursor-pointer self-start"
           >
-            <LogOut size={18} />
+            Iesire
           </button>
         </div>
       )}
