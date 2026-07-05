@@ -21,3 +21,24 @@ body {
 h1, h2, h3 {
   font-family: var(--font-serif);
 }
+
+/* Custom typographic scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FCFAF6;
+}
+::-webkit-scrollbar-thumb {
+  background: #1C1917;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1E3F20;
+}
+
+/* Smooth typographic transitions */
+a, button {
+  transition: all 0.2s ease-in-out;
+}

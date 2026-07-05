@@ -1,0 +1,6 @@
+@Meridian.Services.Booking_HostAddress = http://localhost:5216
+
+GET {{Meridian.Services.Booking_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "../../app/CurrentUserContext";
-import { getAllEmployees, getDepartments } from "./api";
+import { 
+  getAllEmployees, 
+  getDepartments, 
+  getBookingsByDate, 
+  createBooking, 
+  deleteBooking 
+} from "./api";
+import type { DeskReservation } from "./api";
 import type { Employee, Department } from "../../shared/types";
 import { Spinner } from "../../shared/components/Spinner";
 
@@ -8,9 +15,45 @@ export const Team = () => {
   const { currentUser } = useCurrentUser();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [bookings, setBookings] = useState<{ [day: string]: DeskReservation[] }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null);
+  const [bookingInProgress, setBookingInProgress] = useState<string | null>(null);
+
+  // Day mapping helpers
+  const dayAbbrs = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  const dayNamesRo: { [key: string]: string } = {
+    Mon: "Luni",
+    Tue: "Marti",
+    Wed: "Miercuri",
+    Thu: "Joi",
+    Fri: "Vineri"
+  };
+
+  const getWeekDate = (dayAbbr: string) => {
+    const today = new Date();
+    const dayMap: { [key: string]: number } = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5 };
+    const targetDayOfWeek = dayMap[dayAbbr] || 1;
+    const currentDayOfWeek = today.getDay(); // 0 Sunday, 1 Monday...
+    
+    const mondayDiff = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayDiff);
+    
+    const targetDate = new Date(monday);
+    targetDate.setDate(monday.getDate() + (targetDayOfWeek - 1));
+    return targetDate;
+  };
+
+  const formatDateIso = (date: Date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const mapDayToRo = (day: string) => dayNamesRo[day] || day;
 
   useEffect(() => {
     let active = true;
@@ -22,9 +65,29 @@ export const Team = () => {
           getAllEmployees(),
           getDepartments()
         ]);
+        
+        // Fetch bookings for the 5 days
+        const bookingsMap: { [day: string]: DeskReservation[] } = {};
+        const bookingsResults = await Promise.all(
+          dayAbbrs.map(async day => {
+            const dateStr = formatDateIso(getWeekDate(day));
+            try {
+              const data = await getBookingsByDate(dateStr);
+              return { day, data };
+            } catch {
+              return { day, data: [] };
+            }
+          })
+        );
+
+        bookingsResults.forEach(res => {
+          bookingsMap[res.day] = res.data;
+        });
+
         if (active) {
           setEmployees(empData);
           setDepartments(deptData);
+          setBookings(bookingsMap);
           
           // Auto-select current user's department
           if (currentUser) {
@@ -40,7 +103,7 @@ export const Team = () => {
         }
       } catch (err) {
         if (active) {
-          setError("Nu s-au putut incarca datele echipei. Asigura-te ca serviciul Employees este pornit.");
+          setError("Nu s-au putut incarca datele. Asigura-te ca backend-ul (inclusiv Booking Service pe portul 5104) este pornit.");
         }
       } finally {
         if (active) {
@@ -54,6 +117,48 @@ export const Team = () => {
       active = false;
     };
   }, [currentUser]);
+
+  const handleReserve = async (day: string) => {
+    if (!currentUser) return;
+    setBookingInProgress(day);
+    try {
+      const dateStr = formatDateIso(getWeekDate(day));
+      const deskNumber = 100 + Math.floor(Math.random() * 50);
+      const newReservation = await createBooking(
+        currentUser.id,
+        currentUser.fullName,
+        dateStr,
+        deskNumber
+      );
+
+      // Update state locally
+      setBookings(prev => ({
+        ...prev,
+        [day]: [...(prev[day] || []), newReservation]
+      }));
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Eroare la rezervarea locului.");
+    } finally {
+      setBookingInProgress(null);
+    }
+  };
+
+  const handleCancel = async (day: string, bookingId: number) => {
+    setBookingInProgress(day);
+    try {
+      await deleteBooking(bookingId);
+      
+      // Update state locally
+      setBookings(prev => ({
+        ...prev,
+        [day]: (prev[day] || []).filter(b => b.id !== bookingId)
+      }));
+    } catch {
+      alert("Eroare la anularea rezervarii.");
+    } finally {
+      setBookingInProgress(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -81,21 +186,8 @@ export const Team = () => {
     );
   }
 
-  // Get current user details
   const userOfficeDays = (currentUser.officeDays || "").split(",");
   const userDeptId = currentUser.departmentId;
-
-  // Day mapping helpers
-  const dayAbbrs = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-  const dayNamesRo: { [key: string]: string } = {
-    Mon: "Luni",
-    Tue: "Marti",
-    Wed: "Miercuri",
-    Thu: "Joi",
-    Fri: "Vineri"
-  };
-
-  const mapDayToRo = (day: string) => dayNamesRo[day] || day;
 
   // Filter employees by department
   const filteredEmployees = selectedDeptId
@@ -110,13 +202,17 @@ export const Team = () => {
   // Calculate office overlaps for today
   const dayMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const todayAbbr = dayMap[new Date().getDay()];
-  const isUserInOfficeToday = userOfficeDays.includes(todayAbbr);
+  
+  const hasUserBookingToday = (bookings[todayAbbr] || []).some(b => b.employeeId === currentUser.id);
+  const isUserInOfficeToday = userOfficeDays.includes(todayAbbr) || hasUserBookingToday;
 
   const teammatesInOfficeToday = employees.filter(emp => {
     if (emp.id === currentUser.id) return false;
     if (emp.departmentId !== userDeptId) return false;
+    
     const empDays = (emp.officeDays || "").split(",");
-    return empDays.includes(todayAbbr);
+    const hasEmpBooking = (bookings[todayAbbr] || []).some(b => b.employeeId === emp.id);
+    return empDays.includes(todayAbbr) || hasEmpBooking;
   });
 
   const overlapMessage = isUserInOfficeToday
@@ -151,7 +247,7 @@ export const Team = () => {
             Echipa si programul hibrid
           </h1>
           <p className="text-[#57534E] mt-2 text-sm max-w-lg font-medium">
-            Planifica interactiunile fizice cu echipa ta. Vizualizeaza programul hibrid saptamanal.
+            Planifica interactiunile fizice cu echipa ta. Rezerva un birou sau vizualizeaza programul saptamanal.
           </p>
         </div>
         <div className="text-left md:text-right">
@@ -193,7 +289,7 @@ export const Team = () => {
         </div>
       )}
 
-      {/* 2. visual Monday-Friday calendar grid */}
+      {/* 2. visual Monday-Friday calendar grid with interactive booking */}
       <div className="space-y-6">
         <h3 className="text-xs font-bold uppercase tracking-widest text-[#57534E]">
           Calendar Saptamanal Birou ({departments.find(d => d.id === selectedDeptId)?.name || "Echipa"})
@@ -201,34 +297,76 @@ export const Team = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 border-b border-black/10 pb-16">
           {dayAbbrs.map(day => {
-            const isUserDay = userOfficeDays.includes(day);
-            const inOfficeTeammates = filteredEmployees.filter(emp => {
+            const staticUserDay = userOfficeDays.includes(day);
+            const userBooking = (bookings[day] || []).find(b => b.employeeId === currentUser.id);
+            const isUserPresent = staticUserDay || !!userBooking;
+
+            // Get all other people present
+            const staticTeammates = filteredEmployees.filter(emp => {
               if (emp.id === currentUser.id) return false;
               return (emp.officeDays || "").split(",").includes(day);
             });
 
+            const bookedTeammates = (bookings[day] || []).filter(b => b.employeeId !== currentUser.id);
+
+            // Combine names, avoid duplicates
+            const allTeammatesPresent = new Map<string, string>(); // name -> extra label
+            staticTeammates.forEach(t => allTeammatesPresent.set(t.fullName, "Program stabilit"));
+            bookedTeammates.forEach(b => allTeammatesPresent.set(b.employeeName, `Rezervat (Birou ${b.deskNumber})`));
+
             return (
-              <div key={day} className="space-y-3 pt-4 border-t border-black/10 first:border-t md:border-t border-black/10">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-[#1C1917] tracking-tight">
-                    {mapDayToRo(day)}
-                  </span>
-                  {isUserDay && (
-                    <span className="text-[8px] font-bold uppercase tracking-widest bg-[#E8F1E9] text-[#1E3F20] px-1 border border-[#D2E2D4]">
-                      Azi la birou
+              <div key={day} className="space-y-3 pt-4 border-t border-black/10 first:border-t md:border-t border-black/10 flex flex-col justify-between min-h-[220px]">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-[#1C1917] tracking-tight">
+                      {mapDayToRo(day)}
                     </span>
-                  )}
+                    {isUserPresent && (
+                      <span className="text-[8px] font-bold uppercase tracking-widest bg-[#E8F1E9] text-[#1E3F20] px-1 border border-[#D2E2D4]">
+                        Prezent
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    {allTeammatesPresent.size > 0 ? (
+                      Array.from(allTeammatesPresent.entries()).map(([name, label]) => (
+                        <div key={name} className="group relative">
+                          <p className="text-xs text-[#57534E] font-medium truncate">
+                            {name}
+                          </p>
+                          <span className="absolute left-0 bottom-full mb-1 hidden group-hover:block bg-[#1C1917] text-white text-[8px] px-2 py-0.5 whitespace-nowrap z-10">
+                            {label}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[10px] text-[#57534E]/60 italic">Niciun coleg la birou</p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  {inOfficeTeammates.length > 0 ? (
-                    inOfficeTeammates.map(emp => (
-                      <p key={emp.id} className="text-xs text-[#57534E] font-medium truncate">
-                        {emp.fullName}
-                      </p>
-                    ))
+                {/* Booking actions */}
+                <div className="pt-4 border-t border-black/5">
+                  {userBooking ? (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-[#1E3F20]">✓ Biroul #{userBooking.deskNumber}</p>
+                      <button
+                        onClick={() => handleCancel(day, userBooking.id)}
+                        disabled={bookingInProgress !== null}
+                        className="text-[10px] uppercase font-bold text-red-700 hover:text-red-900 cursor-pointer underline disabled:opacity-50"
+                      >
+                        [anuleaza]
+                      </button>
+                    </div>
                   ) : (
-                    <p className="text-[10px] text-[#57534E]/60 italic">Niciun coleg la birou</p>
+                    <button
+                      onClick={() => handleReserve(day)}
+                      disabled={bookingInProgress !== null}
+                      className="text-[10px] uppercase font-bold text-[#1E3F20] hover:text-[#2C572F] cursor-pointer underline disabled:opacity-50"
+                    >
+                      {staticUserDay ? "[Rezerva birou specific]" : "[Rezerva loc]"}
+                    </button>
                   )}
                 </div>
               </div>
@@ -270,8 +408,18 @@ export const Team = () => {
           {filteredEmployees.length > 0 ? (
             filteredEmployees.map(emp => {
               const empDays = (emp.officeDays || "").split(",");
-              // check common days
-              const commonDays = userOfficeDays.filter(d => empDays.includes(d));
+              
+              // Compute dynamic overlays: check common days including bookings
+              const commonDays = dayAbbrs.filter(day => {
+                const userHasBooking = (bookings[day] || []).some(b => b.employeeId === currentUser.id);
+                const isUserPresent = userOfficeDays.includes(day) || userHasBooking;
+                
+                const empHasBooking = (bookings[day] || []).some(b => b.employeeId === emp.id);
+                const isEmpPresent = empDays.includes(day) || empHasBooking;
+
+                return isUserPresent && isEmpPresent;
+              });
+
               const hasOverlap = commonDays.length > 0;
 
               return (

@@ -9,6 +9,7 @@ namespace Meridian.Services.Onboarding.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Route("api/slack-channels")]
 public class SlackChannelsController : ControllerBase
 {
     private readonly OnboardingDbContext _context;
